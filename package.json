@@ -4,7 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "typecheck": "bun check"
+    "typecheck": "bun check",
+    "start": "bun check && bun index.ts",
+    "dev": "bun check && bun --watch index.ts"
   },
   "dependencies": {
     "discord.js": "14.28.1"
