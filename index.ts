@@ -1,36 +1,58 @@
 import { config } from './config.ts';
 import { Client, GatewayIntentBits, Events } from 'discord.js';
+import { logger } from './logger.ts';
 
 const { token } = config;
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-console.log('starting Discord Client');
+logger.info('Starting Discord client');
 
-client.once(Events.ClientReady, readyClient =>
-  console.log(`Discord WS Connection established.
-  Bot: ${readyClient.user.bot}
-  User Tag: ${readyClient.user.tag}`)
-);
+client.once(Events.ClientReady, readyClient => {
+  logger.info({ userTag: readyClient.user.tag }, 'Discord client ready');
+});
 
 client.on(Events.ShardReconnecting, shardId => {
-  console.log(`Gateway ${shardId}: reconnecting`);
+  logger.info({ shardId }, 'Gateway reconnecting');
 });
 
 client.on(Events.ShardReady, shardId => {
-  console.log(`Gateway ${shardId}: session ready`);
+  logger.info({ shardId }, 'Gateway session ready');
 });
 
 client.on(Events.ShardResume, shardId => {
-  console.log(`Gateway ${shardId}: session resumed`);
+  logger.info({ shardId }, 'Gateway session resumed');
 });
 
 client.on(Events.ShardDisconnect, (event, shardId) => {
-  console.log(`Gateway ${shardId}: disconnected, code ${event.code}`);
+  logger.warn({ shardId, closeCode: event.code }, 'Gateway disconnected');
 });
 
 client.on(Events.ShardError, (error, shardId) => {
-  console.error(`Gateway ${shardId}:`, error.message);
+  logger.error({ shardId, errorMessage: error.message }, 'Gateway error');
 });
 
 await client.login(token);
+
+client.on(Events.InteractionCreate, async interaction => {
+  if (!interaction.isChatInputCommand()) return;
+
+  // Command: /ping
+  if (interaction.commandName === 'ping') {
+    try {
+      await interaction.reply('Pong!');
+    } catch (error) {
+      logger.error(`Failed to handle /${interaction.commandName}:`, error);
+    }
+  }
+
+  // Command: /repeat
+  if (interaction.commandName === 'repeat') {
+    try {
+      const userText = interaction.options.getString('text', true);
+      await interaction.reply({ content: userText, allowedMentions: { parse: [] } });
+    } catch (error) {
+      logger.error(`Failed to handle /${interaction.commandName}:`, error);
+    }
+  }
+});
