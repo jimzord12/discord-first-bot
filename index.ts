@@ -1,6 +1,7 @@
 import { config } from './config.ts';
 import { Client, GatewayIntentBits, Events } from 'discord.js';
 import { logger } from './logger.ts';
+import { commandsRouter } from './commands/router.ts';
 
 const { token } = config;
 
@@ -37,22 +38,24 @@ await client.login(token);
 client.on(Events.InteractionCreate, async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
-  // Command: /ping
-  if (interaction.commandName === 'ping') {
-    try {
-      await interaction.reply('Pong!');
-    } catch (error) {
-      logger.error(`Failed to handle /${interaction.commandName}:`, error);
-    }
-  }
+  const result = commandsRouter(interaction);
 
-  // Command: /repeat
-  if (interaction.commandName === 'repeat') {
-    try {
-      const userText = interaction.options.getString('text', true);
-      await interaction.reply({ content: userText, allowedMentions: { parse: [] } });
-    } catch (error) {
-      logger.error(`Failed to handle /${interaction.commandName}:`, error);
-    }
-  }
+  result?.match(
+    command => command.execute(interaction), // what to do if the result is ok
+    error => logger.error(error)
+    // ... if its not ok
+  );
+
+  // -- Old Code
+  // // Command: /ping
+  // if (interaction.commandName === 'ping') {
+  // }
+
+  // // Command: /repeat
+  // if (interaction.commandName === 'repeat') {
+  //   try {
+  //   } catch (error) {
+  //     logger.error(`Failed to handle /${interaction.commandName}:`, error);
+  //   }
+  // }
 });

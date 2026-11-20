@@ -1,14 +1,7 @@
-import { REST, Routes, SlashCommandBuilder } from 'discord.js';
+import { REST, Routes, type SlashCommandOptionsOnlyBuilder } from 'discord.js';
 import { config } from './config';
 import { logger } from './logger';
-
-const ping = new SlashCommandBuilder().setName('ping').setDescription('Check if the bot responds');
-const repeat = new SlashCommandBuilder()
-  .setName('repeat')
-  .setDescription('send the same text back')
-  .addStringOption(option =>
-    option.setName('text').setDescription('the text to repeat').setRequired(true).setMaxLength(255)
-  );
+import * as commands from './commands';
 
 const restApi = new REST().setToken(config.token);
 
@@ -18,12 +11,14 @@ const restApi = new REST().setToken(config.token);
 //   body: ping.toJSON(),
 // });
 
-const commands = [ping, repeat];
+const commandData: SlashCommandOptionsOnlyBuilder[] = Object.values(commands).map(
+  ({ data }) => data
+);
 
 await restApi.put(Routes.applicationGuildCommands(config.applicationId, config.guildId), {
-  body: commands.map(c => c.toJSON()),
+  body: commandData.map(c => c.toJSON()),
 });
 
 logger.info(
-  `Registered ${commands.length} commands: ${commands.map(c => `/${c.name}`).join(', ')}`
+  `Registered ${commandData.length} commands: ${commandData.map(c => `/${c.name}`).join(', ')}`
 );
