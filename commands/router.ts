@@ -2,7 +2,9 @@ import type { ChatInputCommandInteraction } from 'discord.js';
 import * as commands from '.';
 import { err, ok } from 'neverthrow';
 
-const commandsMap = new Map(Object.entries(commands));
+const _commands = Object.entries(commands).map(([k, v]) => [v.data.name, v]);
+
+const commandsMap = new Map(Object.entries(_commands)); // ChatGPT #2 Issue Fix
 
 export const commandsRouter = (interaction: ChatInputCommandInteraction) => {
   const name = interaction.commandName;
