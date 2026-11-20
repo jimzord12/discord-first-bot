@@ -2,6 +2,7 @@ import { config } from './config.ts';
 import { Client, GatewayIntentBits, Events } from 'discord.js';
 import { logger } from './logger.ts';
 import { commandsRouter } from './commands/router.ts';
+import { handleCommandError } from './errors/handlers.ts';
 
 const { token } = config;
 
@@ -40,22 +41,15 @@ client.on(Events.InteractionCreate, async interaction => {
 
   const result = commandsRouter(interaction);
 
-  result?.match(
-    command => command.execute(interaction), // what to do if the result is ok
-    error => logger.error(error)
-    // ... if its not ok
-  );
+  if (result.isErr()) {
+    handleCommandError(interaction.commandName, result.error);
+    return;
+  }
 
-  // -- Old Code
-  // // Command: /ping
-  // if (interaction.commandName === 'ping') {
-  // }
+  const result2 = await result.value.execute(interaction);
 
-  // // Command: /repeat
-  // if (interaction.commandName === 'repeat') {
-  //   try {
-  //   } catch (error) {
-  //     logger.error(`Failed to handle /${interaction.commandName}:`, error);
-  //   }
-  // }
+  if (result2.isErr()) {
+    handleCommandError(interaction.commandName, result2.error);
+    return;
+  }
 });

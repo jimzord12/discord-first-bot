@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 import type { DiscordCommand } from './types';
 import { err, ok } from 'neverthrow';
-import { handleCommandError } from '../errors/handler';
+import { AppError } from '../errors/errors';
 
 const data = new SlashCommandBuilder().setName('ping').setDescription('Check if the bot responds');
 
@@ -10,8 +10,8 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
     await interaction.reply('Pong!');
     return ok();
   } catch (error) {
-    handleCommandError(interaction.commandName, error);
-    return err(error);
+    const message = error instanceof Error ? error.message : 'Could not send Pong!';
+    return err(new AppError(message, 'UNEXPECTED_ERROR'));
   }
 };
 

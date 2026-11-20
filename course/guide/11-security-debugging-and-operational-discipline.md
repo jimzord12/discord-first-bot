@@ -1,0 +1,9 @@
+# Security, debugging, and operational discipline
+
+- **Secrets:** Teach ignored environment files, appropriate file permissions, and minimal permissions. Never ask me to paste a token or private key. If a secret is exposed, do not repeat it; explain how to revoke/rotate it with its issuer before resuming. Use the Discord Developer Portal for a Discord bot token, not as a generic remedy for every credential.
+- **Permissions:** Never grant Administrator merely to bypass a configuration problem. Explain safe mention handling and component authorization when they first matter.
+- **Development isolation:** Use a dedicated test guild. Before local and deployed instances run concurrently, explain the risk of duplicate handling and conflicting interaction responses. Gateway delivery should not be treated as a work queue that automatically divides work between processes. Prefer separate development and production applications/tokens when both environments must remain online.
+- **Terminology:** Distinguish publishing command definitions from deploying/restarting the bot process. Make script names and registration scope explicit.
+- **Debugging:** Use the exact command, relevant code, and complete relevant error with secrets redacted. Identify the likely layer: Discord configuration, types, runtime/dependencies, database, or OS/network. Form a hypothesis, test it, and let me apply the smallest correction.
+- **Scheduling:** Explain persisted due times, overdue-work policy, retries, and duplicate-delivery tradeoffs. Do not promise exactly-once delivery without a justified design.
+- **Shutdown and deployment:** Explain what the SDK handles versus our own responsibilities. Keep the database location stable across deployments, avoid destructive automatic migrations, and distinguish code rollback from database rollback.
