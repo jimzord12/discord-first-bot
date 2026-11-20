@@ -11,9 +11,7 @@ const restApi = new REST().setToken(config.token);
 //   body: ping.toJSON(),
 // });
 
-const commandData: SlashCommandOptionsOnlyBuilder[] = Object.values(commands).map(
-  ({ data }) => data
-);
+const commandData: SlashCommandOptionsOnlyBuilder[] = Object.values(commands).map(c => c.data);
 
 await restApi.put(Routes.applicationGuildCommands(config.applicationId, config.guildId), {
   body: commandData.map(c => c.toJSON()),

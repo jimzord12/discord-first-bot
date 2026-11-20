@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
-import { logger } from '../logger';
 import type { DiscordCommand } from './types';
 import { err, ok } from 'neverthrow';
+import { handleCommandError } from '../errors/handler';
 
 const data = new SlashCommandBuilder().setName('ping').setDescription('Check if the bot responds');
 
@@ -10,7 +10,7 @@ const execute = async (interaction: ChatInputCommandInteraction) => {
     await interaction.reply('Pong!');
     return ok();
   } catch (error) {
-    logger.error(`Failed to handle /${interaction.commandName}:`, error);
+    handleCommandError(interaction.commandName, error);
     return err(error);
   }
 };
